@@ -15,7 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class ProductController {
@@ -84,4 +84,15 @@ public class ProductController {
     public List<Product> findExpensiveProduct(@PathVariable int prixLimit) {
         return productDao.chercherUnProduitCher(prixLimit);
     }
+
+    @GetMapping(value="Produits/AdminProduits")
+    public Map<String,Integer> calculerMargeProduit() {
+        List<Product> products = productDao.findAll();
+        Map<String,Integer> maMap = new HashMap<>();
+        for(Product p: products) {
+            maMap.put(p.toString(),p.getPrix() - p.getPrixAchat());
+        }
+        return maMap;
+    }
+
 }
