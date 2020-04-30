@@ -2,6 +2,7 @@ package com.ecommerce.microcommerce.web.controller;
 import com.ecommerce.microcommerce.dao.ProductDao;
 import com.ecommerce.microcommerce.model.Product;
 import com.ecommerce.microcommerce.web.exception.ProductNotFoundException;
+import com.ecommerce.microcommerce.web.exception.ProduitGratuitException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -57,6 +58,7 @@ public class ProductController {
 
     @PostMapping(value="/Produits")
     public ResponseEntity<Void> ajouterProduit(@Valid @RequestBody Product product) {
+        if(product.getPrix() == 0) throw new ProduitGratuitException("Tu peux pas faire ça gratuit frère ! Abuse pas !");
         Product productAdded = productDao.save(product);
 
         if( productAdded == null)

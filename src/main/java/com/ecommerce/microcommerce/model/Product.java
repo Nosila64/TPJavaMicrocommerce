@@ -20,7 +20,7 @@ public class Product {
     @Length(min=3,max=20)
     private String nom;
 
-    @Min(value = 1, message = "Pas assez cher vieux !")
+
     private int prix;
 
     private int prixAchat;
