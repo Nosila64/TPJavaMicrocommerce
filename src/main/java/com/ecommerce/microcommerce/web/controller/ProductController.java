@@ -6,6 +6,8 @@ import com.ecommerce.microcommerce.web.exception.ProduitGratuitException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +16,7 @@ import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.*;
@@ -21,8 +24,13 @@ import java.util.*;
 @RestController
 public class ProductController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
     @Autowired
     private ProductDao productDao;
+
+    @Autowired
+    private HttpServletRequest requestContext;
 
     @GetMapping(value="/Produits")
     public List<Product> listeProduits() {
@@ -41,6 +49,7 @@ public class ProductController {
 
     @GetMapping(value="/Produits/{id}")
     public Product afficherUnProduit(@PathVariable int id) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
         Product prod = productDao.findById(id);
         if(prod==null) throw new ProductNotFoundException("Le produit avec l'id "+id+" n'existe pas frère ! Fais un effort !");
         return prod;
@@ -48,16 +57,19 @@ public class ProductController {
 
     @GetMapping(value="test/produits/{prixLimit}")
     public List<Product> testDeRequetes(@PathVariable int prixLimit) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
         return productDao.findByPrixGreaterThan(prixLimit);
     }
 
     @GetMapping(value="test2/produits/{recherche}")
     public List<Product> testDeRequetes(@PathVariable String recherche) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
         return productDao.findByNomLike("%"+recherche+"%");
     }
 
     @PostMapping(value="/Produits")
     public ResponseEntity<Void> ajouterProduit(@Valid @RequestBody Product product) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
         if(product.getPrix() == 0) throw new ProduitGratuitException("Tu peux pas faire ça gratuit frère ! Abuse pas !");
         Product productAdded = productDao.save(product);
 
@@ -74,21 +86,29 @@ public class ProductController {
 
     @DeleteMapping (value = "/Produits/{id}")
     public void supprimerProduit(@PathVariable int id) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
+
         productDao.delete(productDao.findById(id));
     }
 
     @PutMapping(value="/Produits")
     public void updateProduit(@Valid @RequestBody Product product) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
+
         productDao.save(product);
     }
 
     @GetMapping(value="/Produits/find/{prixLimit}")
     public List<Product> findExpensiveProduct(@PathVariable int prixLimit) {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
+
         return productDao.chercherUnProduitCher(prixLimit);
     }
 
     @GetMapping(value="/Produits/AdminProduits")
     public Map<String,Integer> calculerMargeProduit() {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
+
         List<Product> products = productDao.findAll();
         Map<String,Integer> maMap = new HashMap<>();
         for(Product p: products) {
@@ -99,6 +119,8 @@ public class ProductController {
 
     @GetMapping(value="/Produits/Trier")
     public List<Product> trierProduitsParOrdreAlphabetique() {
+        logger.info("Début d'appel au service Produit de la requête: "+requestContext.getHeader("req-id"));
+
         return productDao.findByOrderByNomAsc();
     }
 
